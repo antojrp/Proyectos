@@ -82,6 +82,7 @@ void leer_datos(double r[][2], double v[][2], double a[][2], double m[])
       entrada >> i;
       entrada >> m[i] >> r[i][0] >> r[i][1] >> v[i][0] >> v[i][1]; 
     }
+    entrada.close();
   }
   else
   {
@@ -105,7 +106,7 @@ int main()
 {
   // Defino matriz con la posición de todos los planetas, tendra tantas filas como planetas y 2 columnas correspondientes al valor de x_i e y_i.
   double r[10][2], v[10][2], a[10][2], m[10];
-  double h = 1;
+  double h = 0.2;
   int n=10, p;
   
   cout << "posiciones: ";
@@ -113,7 +114,6 @@ int main()
 
   crear_fichero();
   leer_datos(r,v,a,m);
-  cout << r[1][1];
   reescalar(r,v,m,n);
   escribir_datos(r,n);
   for (int i=0; i<p; i++)
