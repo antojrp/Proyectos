@@ -51,23 +51,23 @@ file_in = "planets_data.dat" # Nombre del fichero de datos
 file_out = "planetas" # Nombre del fichero de salida (sin extensión)
 
 # Límites de los ejes X e Y
-x_min = -50
-x_max = 50
-y_min = -50 
-y_max = 50
+x_min = -5
+x_max = 5
+y_min = -5
+y_max = 5
 
 interval = 50 # Tiempo entre fotogramas en milisegundos
 show_trail = True # Muestra la "estela" del planeta
 trail_width = 0.1 # Ancho de la estela
 save_to_file = True # False: muestra la animación por pantalla,
                      # True: la guarda en un fichero
-dpi = 150 # Calidad del vídeo de salida (dots per inch)
+dpi = 200 # Calidad del vídeo de salida (dots per inch)
 
 # Radio del planeta, en las mismas unidades que la posición
 # Puede ser un número (el radio de todos los planetas) o una lista con
 # el radio de cada uno
-#planet_radius = 1 
-planet_radius = [0.1, 0.1, 0.1, 0.1, 0.1, 0.1, 0.1, 0.1, 0.1, 0.1]
+planet_radius = 0.1 
+#planet_radius = [0.1, 0.1, 0.1, 0.1, 0.1, 0.1, 0.1, 0.1, 0.1, 0.1]
 
 
 # Lectura del fichero de datos
@@ -113,6 +113,8 @@ fig, ax = plt.subplots()
 ax.axis("equal")  # Misma escala para ejes X e Y
 ax.set_xlim(x_min, x_max)
 ax.set_ylim(y_min, y_max)
+time_template = 'Tiempo = %.1fdias'
+time_text = ax.text(0.05, 0.9, '', transform=ax.transAxes)
 
 # Si solo se ha dado un radio para todos los planetas, conviértelo a una
 # lista con todos los elementos iguales
@@ -159,7 +161,10 @@ def update(j_frame, frames_data, planet_points, planet_trails, show_trail):
 
             planet_trails[j_planet].set_data(xs_new, ys_new)
 
-    return planet_points + planet_trails
+    time_text.set_text(time_template % (j_frame*0.1*58.1))
+    time=[time_text]
+    return planet_points + planet_trails + time
+
 
 def init_anim():
     # Clear trails

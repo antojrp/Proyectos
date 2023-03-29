@@ -62,9 +62,87 @@ void verlet(double r[][2], double v[][2], double a[][2], double m[], double h, i
   return;
 }
 
-void crear_fichero()
+double energia_potencial(double r[][2], double m[], int n)
 {
-  ofstream salida("planets_data.dat");
+  double distancia=0;
+  double energia_potencial=0;
+  for(int i=0; i < n ; i++)
+  {
+
+    for(int j=0; j < n ; j++)
+    {
+      if( j != i )
+      {
+
+        distancia=sqrt(pow(r[i][0]-r[j][0],2)+pow(r[i][1]-r[j][1],2));
+        energia_potencial=energia_potencial+m[i]*m[j]/distancia;
+
+      }
+    }
+  
+  }
+  return energia_potencial;
+
+}
+
+double energia_cinetica(double v[][2], double m[], int n)
+{
+  double energia_cinetica=0 , vel=0;
+  for(int i=0; i < n ; i++)
+  {
+    vel=sqrt(v[i][0]*v[i][0]+v[i][1]*v[i][1]);
+    energia_cinetica=energia_cinetica+1.0/2.0*m[i]*vel*vel;
+  }
+  return energia_cinetica;
+
+}
+
+void angulo_planetas(double angulo[], double r[][2], int n)
+{
+  double ang;
+  for(int i=1; i<n; i++)
+  {
+    if(r[i][0] > 0 )
+    {
+      ang=atan(r[i][1]/r[i][0])*180/(3.1416);
+    }
+    else if(r[i][1] > 0) 
+    {
+      ang=(atan(r[i][1]/r[i][0])*180/(3.1416))-180;
+    }
+    else
+    {
+      ang=atan(r[i][1]/r[i][0])*180/(3.1416)+180;
+    }
+    if(ang > int(angulo[i])%360)
+    {
+      angulo[i]=ang+int(angulo[i])/360*360;
+    }
+    else
+    {
+      angulo[i]=ang+int(angulo[i])/360*360+360;
+    }
+  }
+
+
+}
+
+void periodo_planetas(double angulo[], int n, double h, double p)
+
+{
+  double periodo;
+  ofstream salida("Periodo_planetas.dat", ios::app);
+  for(int i=1; i<n ; i++)
+  {
+    periodo=p*h*58.1/(angulo[i]/360.0);
+    salida << i << ":  " << periodo << " dias" << "\n";
+  }
+  salida.close();
+}
+void crear_fichero(string nombre)
+{
+  ofstream salida(nombre);
+  salida << "";
   salida.close();
 }
 
@@ -91,7 +169,7 @@ void leer_datos(double r[][2], double v[][2], double a[][2], double m[])
   entrada.close();
 }
 
-void escribir_datos(double r[][2], int n)
+void escribir_posiciones(double r[][2], int n)
 {
   ofstream salida("planets_data.dat", ios::app);
   for(int i=0 ; i < n ; i++)
@@ -102,27 +180,43 @@ void escribir_datos(double r[][2], int n)
   salida.close();
 }
 
+void escribir_energia(double E)
+{
+  ofstream salida("Energia_planetas.dat", ios::app);
+  salida << E << "\n";
+  salida.close();
+}
+
+
 int main()
 {
   // Defino matriz con la posición de todos los planetas, tendra tantas filas como planetas y 2 columnas correspondientes al valor de x_i e y_i.
-  double r[10][2], v[10][2], a[10][2], m[10];
-  double h = 0.2;
+  double r[10][2], v[10][2], a[10][2], m[10], angulo[10]={0,0,0,0,0,0,0,0,0,0};
+  double h = 0.01, E;
   int n=10, p;
   
   cout << "posiciones: ";
   cin >> p;
 
-  crear_fichero();
+  crear_fichero("planets_data.dat");
+  crear_fichero("Energia_planetas.dat");
+  crear_fichero("Periodo_planetas.dat");
   leer_datos(r,v,a,m);
   reescalar(r,v,m,n);
-  escribir_datos(r,n);
+  escribir_posiciones(r,n);;
+  E=-energia_potencial(r,m,n)+energia_cinetica(v,m,n);
+  escribir_energia(E);
+  gravitacion(r,a,m,n);
   for (int i=0; i<p; i++)
   {
-    gravitacion(r,a,m,n);
     verlet(r,v,a,m,h,n);
-    escribir_datos(r,n);
+    escribir_posiciones(r,n);
+    E=-energia_potencial(r,m,n)+energia_cinetica(v,m,n);
+    escribir_energia(E);
+    angulo_planetas(angulo,r,n);
+
   }
-  
+  periodo_planetas(angulo, n, h, p); 
 
 
 }
